@@ -1,0 +1,2 @@
+[qemupi]
+qemupi ansible_host=localhost
