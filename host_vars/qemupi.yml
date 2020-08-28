@@ -9,5 +9,5 @@ rpi_wpa_supplicant_networks:
 security_autoupdate_reboot: true
 security_autoupdate_reboot_time: "02:00"
 security_autoupdate_mail_to: ""
-security_autoupdate_mail_on_error: true
+security_autoupdate_mail_only_on_error: true
 security_autoupdate_blacklist: []
