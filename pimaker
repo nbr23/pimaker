@@ -1,0 +1,50 @@
+#! /usr/bin/env bash
+
+source config.env
+
+case $1 in
+  all)
+    sudo -E bash -c "\
+      sudo -u $USER $0 download && \
+      $0 edit-offline && \
+      sudo -u $USER $0 qemu-image && \
+      sudo -u $USER $0 run && \
+      sudo -u $USER $0 ansible && \
+      $0 sdimage"
+    ;;
+  download)
+    ./scripts/download.sh ;;
+
+  edit-offline)
+    sudo -E ./scripts/edit-image.sh ;;
+
+  qemu-image)
+    ./scripts/qemu-image.sh ;;
+
+  run)
+    ./scripts/emulate-run.sh ;;
+
+  ansible)
+    for play in ${ANSIBLE_PLAYS[@]}; do
+      ansible-playbook -i inventory -e "ansible_ssh_port=$QEMU_SSH_PORT" --private-key ${SSH_PUBKEY%.*} -u $IMAGE_USER $play;
+    done ;;
+
+  sdimage)
+    sudo -E ./scripts/finalize.sh ;;
+
+  clean)
+    sudo bash -c 'umount mnt || true; \
+      rm -rf qemu.pid *.zip *.img *.torrent *.qcow2 *.aria2 kernel/ mnt/' ;;
+
+  *)
+    echo $0 '[option]
+      - all: perform all the below actions except clean. Downloads the media and creates the final sd image.
+      - download: Downloads the base image, qemu kernel
+      - edit-offline: Mounts the .img and performs offline updates to the OS
+      - qemu-image: converts the .img to a qemu image
+      - run: boots the qemu image on qemu for online customizations
+      - ansible: runs predefined ansible playbooks on the qemu booted image
+      - toimg: converts the qemu image back to a .img file
+      - clean: remove all generated files and folders' ;;
+
+esac
