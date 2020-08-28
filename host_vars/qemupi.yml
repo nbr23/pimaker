@@ -1,0 +1,13 @@
+rpi_hostname: myraspi
+
+rpi_wpa_supplicant_networks:
+  - ssid: "wifi1"
+    psk: ""
+  - ssid: "wifi2"
+    psk: ""
+
+security_autoupdate_reboot: true
+security_autoupdate_reboot_time: "02:00"
+security_autoupdate_mail_to: ""
+security_autoupdate_mail_on_error: true
+security_autoupdate_blacklist: []
