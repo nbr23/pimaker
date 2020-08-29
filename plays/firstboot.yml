@@ -1,0 +1,137 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+
+  handlers:
+    - name: ssh_restart
+      service:
+        name: 'sshd'
+        state: 'restarted'
+
+  tasks:
+    - name: Wait for the vm
+      wait_for:
+        host: localhost
+        port: "{{ ansible_ssh_port }}"
+        search_regex: OpenSSH
+      connection: local
+      become: false
+
+    - name: Set random password
+      user:
+        name: "{{ item }}"
+        password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits,hexdigits,punctuation' ) | password_hash('sha512') }}"
+      with_items:
+        - root
+        - "{{ ansible_user }}"
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+
+    - name: Install essential packages
+      apt:
+        pkg:
+          - git
+          - tmux
+          - bash
+          - vim
+          - sudo
+          - most
+          - make
+          - python3-gpiozero
+          - wpasupplicant
+          - ufw
+          - unattended-upgrades
+          - ntp
+
+    - name: Ensure ntp is enabled
+      service:
+        name: ntp
+        enabled: true
+
+    - name: Copy unattended-upgrades configuration files
+      template:
+        src: "{{ item }}.j2"
+        dest: "/etc/apt/apt.conf.d/{{ item }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - 10periodic
+        - 50unattended-upgrades
+
+    - name: Ensure sshd is enabled
+      service:
+        name: sshd
+        enabled: true
+
+    - name: Update SSH configuration to be more secure.
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+        validate: 'sshd -T -f %s'
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - regexp: "^PasswordAuthentication"
+          line: "PasswordAuthentication no"
+        - regexp: "^PermitRootLogin"
+          line: "PermitRootLogin no"
+        - regexp: "^PermitEmptyPasswords"
+          line: "PermitEmptyPasswords no"
+        - regexp: "^StrictModes"
+          line: "StrictModes yes"
+        - regexp: "^PubkeyAuthentication"
+          line: "PubkeyAuthentication yes"
+        - regexp: "^AllowUsers"
+          line: "AllowUsers {{ ansible_user }}"
+        - regexp: "^ChallengeResponseAuthentication"
+          line: "ChallengeResponseAuthentication no"
+        - regexp: "^GSSAPIAuthentication"
+          line: "GSSAPIAuthentication no"
+        - regexp: "^X11Forwarding"
+          line: "X11Forwarding no"
+      notify: ssh_restart
+
+    - name: Flush Handlers
+      meta: flush_handlers
+
+    - name: Set hostname
+      hostname:
+        name: "{{ rpi_hostname }}"
+
+    - name: Update hostfile
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^127.0.0.1"
+        line: "127.0.0.1  {{ rpi_hostname }}"
+
+    - name: Copy wpa_supplicant configuration file
+      template:
+        src: "wpa_supplicant.j2"
+        dest: "/etc/wpa_supplicant/wpa_supplicant.conf"
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: Enable wpa_supplicant
+      service:
+        name: wpa_supplicant
+        enabled: true
+
+    - name: Add HDMI poweroff line to rc.local
+      lineinfile:
+        path: /etc/rc.local
+        line: /usr/bin/tvservice -o
+        insertbefore: exit 0
+
+    - name: Disable swap
+      service:
+        name: dphys-swapfile
+        state: stopped
+        enabled: false

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Shutdown system
+      shell: "shutdown -h now"
+      async: 1
+      poll: 0
