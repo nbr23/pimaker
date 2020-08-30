@@ -19,7 +19,8 @@ case $1 in
       sudo -u $USER $0 img2qemu && \
       sudo -u $USER $0 run && \
       sudo -u $USER $0 ansible && \
-      sudo -u $USER $0 qemu2img"
+      sudo -u $USER $0 qemu2img && \
+      $0 img2device"
     ;;
   download)
     ./scripts/download.sh ;;
@@ -42,6 +43,9 @@ case $1 in
   qemu2img)
     ./scripts/qemu2img.sh ;;
 
+  img2device)
+    sudo -E ./scripts/img2device.sh ;;
+
   clean)
     sudo bash -c 'umount mnt || true; \
       rm -rf qemu.pid *.zip *.img *.torrent *.qcow2 *.aria2 kernel/ mnt/' ;;
@@ -55,6 +59,7 @@ case $1 in
       - run: boots the qemu image on qemu for online customizations
       - ansible: runs predefined ansible playbooks on the qemu booted image
       - qemu2img: converts the qemu image back to a .img file
+      - img2device: writes the created image file onto the sdcard or other device
       - clean: remove all generated files and folders' ;;
 
 esac
