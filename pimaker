@@ -2,8 +2,17 @@
 
 source config.env
 
+function get_image_size {
+  if [ -n "$TARGET_DEVICE" ]; then
+    echo $(sudo fdisk -x $TARGET_DEVICE | grep $TARGET_DEVICE: | grep -oE "[0-9]+[[:space:]]bytes" | grep -oE [0-9]+)B ;
+  else
+    echo $IMAGE_SIZE
+  fi
+}
+
 case $1 in
   all)
+    IMAGE_SIZE=$(get_image_size)
     sudo -E bash -c "\
       sudo -u $USER $0 download && \
       $0 edit-offline && \
