@@ -48,7 +48,7 @@ case $1 in
 
   clean)
     sudo bash -c 'umount mnt || true; \
-      rm -rf qemu.pid *.zip *.img *.torrent *.qcow2 *.aria2 kernel/ mnt/' ;;
+      rm -rf qemu.pid *.zip *.torrent *.qcow2 *.aria2 kernel/ mnt/' ;;
 
   *)
     echo $0 '[option]
