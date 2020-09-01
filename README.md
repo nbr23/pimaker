@@ -46,13 +46,13 @@ Boots the image on qemu
 ### pimaker ansible
 Runs `$ANSIBLE_PLAYS` playbook list on the qemu booted image
 
-### qemu2img
+### pimaker qemu2img
 Converts back qemu image to .img
 
-### img2device
+### pimaker img2device
 Flashes `$IMAGE_NAME` to `$TARGET_DEVICE`
 
-### clean
+### pimaker clean
 Deletes all temporary and intermediate files
 
 ## Configuration

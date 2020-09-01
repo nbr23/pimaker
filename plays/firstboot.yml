@@ -32,19 +32,7 @@
 
     - name: Install essential packages
       apt:
-        pkg:
-          - git
-          - tmux
-          - bash
-          - vim
-          - sudo
-          - most
-          - make
-          - python3-gpiozero
-          - wpasupplicant
-          - ufw
-          - unattended-upgrades
-          - ntp
+        pkg: "{{ packages_list }}"
 
     - name: Ensure ntp is enabled
       service:

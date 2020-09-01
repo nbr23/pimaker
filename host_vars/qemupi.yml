@@ -6,6 +6,19 @@ rpi_wpa_supplicant_networks:
   - ssid: "wifi2"
     psk: ""
 
+packages_list:
+  - git
+  - tmux
+  - bash
+  - vim
+  - sudo
+  - most
+  - make
+  - wpasupplicant
+  - ufw
+  - unattended-upgrades
+  - ntp
+
 security_autoupdate_reboot: true
 security_autoupdate_reboot_time: "02:00"
 security_autoupdate_mail_to: ""
