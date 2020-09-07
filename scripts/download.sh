@@ -25,8 +25,10 @@ function fetch_media {
   torrentname=`basename $torrentname`
   archivename=`echo "${torrentname%.*}"`
   uncompress $archivename
-  mkdir kernel
-  wget https://github.com/dhruvvyas90/qemu-rpi-kernel/raw/master/kernel-qemu-4.4.34-jessie -O kernel/kernel-qemu
+  if [ -n "$QEMU_KERNEL_URL" ]; then
+    mkdir kernel
+    wget $QEMU_KERNEL_URL -O kernel/kernel-qemu
+  fi
   rm *.torrent
 }
 
