@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 function fetch_media {
-  torrentname=`curl -I https://downloads.raspberrypi.org/raspios_lite_armhf_latest.torrent | grep location: | grep -o 'http.*.torrent'`
+  torrentname=`curl -I $IMAGE_TORRENT_URL | grep location: | grep -o 'http.*.torrent'`
   aria2c --seed-time=0 $torrentname
   torrentname=`basename $torrentname`
   zipname=`echo "${torrentname%.*}"`
